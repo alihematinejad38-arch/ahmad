@@ -16,6 +16,10 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - run: npm install
       - run: npx cap add android
+      - name: Launcher icons
+        run: |
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26
+          cp -r icons/. android/app/src/main/res/
       - run: npx cap sync android
       - name: Build debug APK
         working-directory: android

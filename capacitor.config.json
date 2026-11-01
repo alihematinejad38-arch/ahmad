@@ -1,7 +1,9 @@
 {
   "appId": "ir.ohs.trainingportal",
-  "appName": "پورتال آموزشی HSE",
+  "appName": "پورتال آموزشی بهداشت حرفه‌ای",
   "webDir": "www",
   "backgroundColor": "#0e1220",
-  "android": { "allowMixedContent": false }
+  "android": {
+    "allowMixedContent": false
+  }
 }
