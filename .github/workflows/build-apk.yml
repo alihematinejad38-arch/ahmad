@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   apk:
     runs-on: ubuntu-24.04
@@ -32,3 +34,9 @@ jobs:
         with:
           name: ohs-training-portal-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk ohs-training-portal.apk
+          gh release create "v1.0.${{ github.run_number }}" ohs-training-portal.apk --title "APK build ${{ github.run_number }}" --notes "Debug APK"
