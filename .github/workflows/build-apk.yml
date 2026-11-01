@@ -5,24 +5,32 @@ on:
   workflow_dispatch:
 jobs:
   apk:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: 17 }
+      - uses: android-actions/setup-android@v3
       - run: npm install
       - run: npx cap add android
-      - name: Portrait + RTL friendly manifest tweaks
-        run: |
-          M=android/app/src/main/AndroidManifest.xml
-          sed -i 's/<application/<application android:supportsRtl="true"/' $M
-          sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="unspecified"/' $M || true
+      - name: Manifest tweaks
+        run: sed -i 's/<application/<application android:supportsRtl="true"/' android/app/src/main/AndroidManifest.xml
       - run: npx cap sync android
       - name: Build debug APK
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: |
+          chmod +x gradlew
+          set +e
+          ./gradlew assembleDebug --no-daemon --stacktrace > /tmp/build.log 2>&1
+          rc=$?
+          if [ $rc -ne 0 ]; then
+            msg=$(grep -n -i -A8 "What went wrong\|error:" /tmp/build.log | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\r//g;s/\n/%0A/g')
+            echo "::error title=GRADLE_FAIL::$msg"
+            tail -30 /tmp/build.log
+            exit $rc
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: ohs-training-portal-apk
