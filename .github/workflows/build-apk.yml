@@ -14,8 +14,6 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - run: npm install
       - run: npx cap add android
-      - name: Manifest tweaks
-        run: sed -i 's/<application/<application android:supportsRtl="true"/' android/app/src/main/AndroidManifest.xml
       - run: npx cap sync android
       - name: Build debug APK
         working-directory: android
